@@ -1,0 +1,7 @@
+analysis_end: "2011-12-09"
+cohort_frequency: "MS"
+repeat_window_days: 60
+snapshot_date: "2011-10-01"
+followup_days: 60
+segment_quantile: 0.75
+
