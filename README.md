@@ -4,6 +4,15 @@ CartScope is a reproducible customer-retention analysis for transaction data. It
 
 The repository runs immediately with deterministic demo data. Pass the [UCI Online Retail](https://archive.ics.uci.edu/dataset/352/online+retail) workbook to analyse the real dataset (CC BY 4.0; cite Chen, D. 2015).
 
+## Decision supported
+
+The measured data describes repeat purchasing; it does not show that a retention campaign causes
+uplift. The [decision memo](reports/decision-memo.md) therefore recommends against a 42-customer
+valuable/lapsed test and specifies a customer-randomised reminder experiment with a fixed
+5-percentage-point decision threshold, sample-ratio checks, uncertainty and operational
+guardrails. At the observed 42.8% baseline, that target needs about **3,110 customers** in total,
+slightly more than the 2,895-customer candidate segment before consent exclusions.
+
 ## Quick start
 
 ```powershell
@@ -20,6 +29,21 @@ uv run cartscope --input "data/raw/Online Retail.xlsx" --output outputs/uci
 ```
 
 Outputs include a cleaning ledger, visible DuckDB SQL reports, cohort table, 60-day repeat-purchase estimate with a Wilson interval, frozen customer segments, later segment outcomes, an experiment power grid, a machine-readable manifest, and a standalone HTML report.
+
+The optional [incremental pipeline](docs/incremental-pipeline.md) adds append-only source versions, idempotent replay, corrections, late credits, tombstones and a tested incremental-versus-full-rebuild reconciliation. It requires a real source event key rather than pretending that all identical retail rows are duplicates.
+
+Analyse a completed customer-randomised experiment from a CSV containing `customer_id`,
+`variant` and `purchased_60d`:
+
+```powershell
+uv run cartscope-experiment --input data/experiment_assignments.csv --output outputs/experiment/result.json
+```
+
+The analysis follows the versioned [experiment specification](configs/retention_experiment.yaml),
+checks sample-ratio mismatch, reports arm and absolute-lift intervals, and applies the pre-declared
+primary-outcome gate. A final ship decision still requires the separately approved operational
+guardrails. The analysis uses intent to treat: each customer must appear exactly once under their
+original assignment.
 
 ## Measured UCI run
 
@@ -44,4 +68,5 @@ tests/               invoice, censoring, cohort and leakage checks
 outputs/             generated and ignored by Git
 ```
 
-The next portfolio-quality addition is a two-page findings and experiment memo based on the measured UCI results. Do not write an uplift claim before running an actual experiment.
+The repository deliberately stops short of an uplift claim. A causal estimate requires a real
+randomised assignment and current operational guardrail data.

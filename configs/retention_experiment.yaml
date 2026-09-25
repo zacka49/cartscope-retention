@@ -1,0 +1,28 @@
+experiment_id: retention-reminder-v1
+owner: retention-product-team
+hypothesis: A single relevant reminder increases 60-day repeat purchase without relying on discounts.
+eligibility:
+  unit: customer
+  rule: Pre-period eligible customers with contact permission; exclude staff, prior opt-outs and customers already contacted by another retention campaign.
+assignment:
+  unit: customer
+  allocation: 0.50
+  persistence: Keep the assigned arm for the complete 60-day observation window.
+outcomes:
+  primary: At least one qualifying positive purchase invoice within 60 days of assignment.
+  secondary:
+    - Gross purchase value per assigned customer
+    - Credit value per assigned customer
+  guardrails:
+    - Unsubscribe rate
+    - Complaint rate
+    - Credit and cancellation rate
+analysis:
+  control_label: control
+  treatment_label: treatment
+  expected_treatment_share: 0.50
+  alpha: 0.05
+  srm_alpha: 0.01
+  minimum_absolute_lift: 0.05
+  population: All assigned eligible customers, analysed by original assignment.
+decision_rule: Ship only if assignment passes SRM, the 95% absolute-lift interval excludes zero, observed lift is at least 5 percentage points, and no guardrail breaches its separately approved limit.
